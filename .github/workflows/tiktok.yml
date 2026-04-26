@@ -21,12 +21,18 @@ jobs:
           mkdir -p videos
           yt-dlp \
             --download-archive archive.txt \
+            --max-downloads 1 \
+            --no-playlist \
             -o "videos/%(title)s.%(ext)s" \
-            https://www.tiktok.com/@teacher_linhlinh
+            "https://www.tiktok.com/@teacher_linhlinh"
+
+      - name: Check files
+        run: ls -R
 
       - name: Upload to Dropbox
         run: |
           for file in videos/*; do
+            echo "Uploading $file"
             curl -X POST https://content.dropboxapi.com/2/files/upload \
               --header "Authorization: Bearer ${{ secrets.DROPBOX_TOKEN }}" \
               --header "Dropbox-API-Arg: {\"path\": \"/$(basename $file)\", \"mode\": \"add\", \"autorename\": true, \"mute\": false}" \
