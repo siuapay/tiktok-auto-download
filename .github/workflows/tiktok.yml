@@ -1,4 +1,4 @@
-name: Auto TikTok Download
+name: Auto TikTok to Dropbox
 
 on:
   schedule:
@@ -6,17 +6,17 @@ on:
   workflow_dispatch:
 
 jobs:
-  download:
+  upload:
     runs-on: ubuntu-latest
 
     steps:
-      - name: Checkout repo
+      - name: Checkout
         uses: actions/checkout@v3
 
       - name: Install yt-dlp
         run: pip install yt-dlp
 
-      - name: Download only new videos
+      - name: Download video
         run: |
           mkdir -p videos
           yt-dlp \
@@ -24,10 +24,12 @@ jobs:
             -o "videos/%(title)s.%(ext)s" \
             https://www.tiktok.com/@teacher_linhlinh
 
-      - name: Commit and push
+      - name: Upload to Dropbox
         run: |
-          git config --global user.name "auto-bot"
-          git config --global user.email "auto@bot.com"
-          git add .
-          git commit -m "auto new video" || echo "no changes"
-          git push
+          for file in videos/*; do
+            curl -X POST https://content.dropboxapi.com/2/files/upload \
+              --header "Authorization: Bearer ${{ secrets.DROPBOX_TOKEN }}" \
+              --header "Dropbox-API-Arg: {\"path\": \"/$(basename $file)\", \"mode\": \"add\", \"autorename\": true, \"mute\": false}" \
+              --header "Content-Type: application/octet-stream" \
+              --data-binary @"$file"
+          done
