@@ -31,11 +31,15 @@ jobs:
 
       - name: Upload to Dropbox
         run: |
-          for file in videos/*; do
-            echo "Uploading $file"
-            curl -X POST https://content.dropboxapi.com/2/files/upload \
-              --header "Authorization: Bearer ${{ secrets.DROPBOX_TOKEN }}" \
-              --header "Dropbox-API-Arg: {\"path\": \"/$(basename $file)\", \"mode\": \"add\", \"autorename\": true, \"mute\": false}" \
-              --header "Content-Type: application/octet-stream" \
-              --data-binary @"$file"
-          done
+          if [ -z "$(ls -A videos)" ]; then
+            echo "No new videos to upload"
+          else
+            for file in videos/*; do
+              echo "Uploading $file"
+              curl -X POST https://content.dropboxapi.com/2/files/upload \
+                --header "Authorization: Bearer ${{ secrets.DROPBOX_TOKEN }}" \
+                --header "Dropbox-API-Arg: {\"path\": \"/TikTok/$(basename $file)\", \"mode\": \"add\", \"autorename\": true, \"mute\": false}" \
+                --header "Content-Type: application/octet-stream" \
+                --data-binary @"$file"
+            done
+          fi
