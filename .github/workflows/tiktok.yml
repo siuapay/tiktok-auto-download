@@ -24,7 +24,7 @@ jobs:
             --max-downloads 1 \
             --no-playlist \
             -o "videos/%(title)s.%(ext)s" \
-            "https://www.tiktok.com/@teacher_linhlinh"
+            "https://www.tiktok.com/@teacher_linhlinh" || true 
 
       - name: Check files
         run: ls -R
