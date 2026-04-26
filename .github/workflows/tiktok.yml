@@ -2,7 +2,7 @@ name: Auto TikTok Download
 
 on:
   schedule:
-    - cron: '*/30 * * * *'  # chạy mỗi 30 phút
+    - cron: '*/30 * * * *'
   workflow_dispatch:
 
 jobs:
@@ -10,7 +10,7 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      - name: Checkout
+      - name: Checkout repo
         uses: actions/checkout@v3
 
       - name: Install yt-dlp
@@ -18,4 +18,13 @@ jobs:
 
       - name: Download video
         run: |
-          yt-dlp https://www.tiktok.com/@teacher_linhlinh
+          mkdir videos
+          yt-dlp -o "videos/%(title)s.%(ext)s" https://www.tiktok.com/@teacher_linhlinh
+
+      - name: Commit and push
+        run: |
+          git config --global user.name "auto-bot"
+          git config --global user.email "auto@bot.com"
+          git add .
+          git commit -m "auto download video" || echo "no changes"
+          git push
